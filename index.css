@@ -1,0 +1,128 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-image: url("image/Safe.png"); /* Corriger l'URL */
+    background-size: cover; /* Ajuster l'image à la taille de la fenêtre */
+    background-repeat: no-repeat;
+    background-position: center;
+    position: relative; /* Nécessaire pour l'overlay de transparence */
+}
+
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0); /* Couche semi-transparente */
+    z-index: 0;
+}
+
+.forum-container {
+    width: 500px;
+    background-color: rgba(255, 255, 255, 0.171);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1; /* Assure que le forum soit au-dessus de la transparence */
+    position: relative;
+}
+
+h1 {
+    text-align: center;
+}
+
+#messages-container {
+    border: 1px solid #ddd;
+    padding: 10px;
+    height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+.message {
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #e7f3ff;
+    border-radius: 5px;
+}
+
+.message-form {
+    display: flex;
+    flex-direction: column;
+}
+
+#message-input {
+    height: 100px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+}
+
+#search-number {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+#search-button {
+    padding: 10px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#search-button:hover {
+    background-color: #218838;
+}
+
+#messages-container {
+    border: 1px solid #ddd;
+    padding: 10px;
+    height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 5px;
+}
+
+.message {
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #e7f3ff;
+    border-radius: 5px;
+}
+
+#message-input {
+    height: 100px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+}
+
+#send-button {
+    padding: 10px;
+    background-color: #007bff79;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#send-button:hover {
+    background-color: #0056b3;
+}
