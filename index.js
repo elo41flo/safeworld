@@ -1,123 +1,56 @@
-// Liste d'insultes à filtrer
-const motsInterdits = ['sale pute', 'connasse', 'connard', 'con', 'conne', 'pute', 'putain', 'fils de pute', 'fille de pute']; // Exemple d'insultes
+// Importation des fonctions Firebase nécessaires
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, push, onChildAdded } from "firebase/database";
 
-// Charger les messages depuis localStorage lors du chargement de la page
-document.addEventListener('DOMContentLoaded', function() {
-    const storedMessages = JSON.parse(localStorage.getItem('messages')) || [];
-    // Inverser l'ordre des messages pour afficher les plus récents en haut
-    storedMessages.reverse().forEach((message, index) => addMessageToDOM(message, index));
-});
+// Configuration Firebase (ton fichier de configuration)
+const firebaseConfig = {
+  apiKey: "AIzaSyBwpxuSPN2I2Z-cUnh3cz45FLqNJu2d90c",
+  authDomain: "safe-world-9475c.firebaseapp.com",
+  projectId: "safe-world-9475c",
+  storageBucket: "safe-world-9475c.appspot.com",
+  messagingSenderId: "348288607278",
+  appId: "1:348288607278:web:e9d7db914c81ff0bb9ebbf",
+  measurementId: "G-FCE2390XNL",
+  databaseURL: "https://safe-world-9475c-default-rtdb.firebaseio.com/"  // Assurez-vous d'ajouter l'URL de la Realtime Database ici
+};
 
-// Fonction d'ajout d'un message et stockage dans localStorage
+// Initialisation de Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
+// Référence à l'endroit où les messages seront stockés
+const messagesRef = ref(database, 'messages');
+
+// Ajouter un message à la base de données lorsqu'un utilisateur clique sur le bouton d'envoi
 document.getElementById('send-button').addEventListener('click', function() {
     const messageInput = document.getElementById('message-input');
     const messageText = messageInput.value.trim();
 
-    // Vérification des insultes avant d'ajouter le message
-    if (containsInsult(messageText)) {
-        alert('Votre message contient des mots interdits. Veuillez corriger votre message.');
-    } else if (messageText !== '') {
-        const storedMessages = JSON.parse(localStorage.getItem('messages')) || [];
+    if (messageText !== '') {
+        // Envoie le message à la Realtime Database
+        push(messagesRef, {
+            text: messageText,
+            timestamp: Date.now()
+        });
 
-        // Ajouter le message à la liste des messages stockés
-        storedMessages.push(messageText);
-        localStorage.setItem('messages', JSON.stringify(storedMessages));
-
-        // Ajouter le message au DOM en haut
-        addMessageToDOM(messageText, storedMessages.length - 1);
-
-        // Vider la zone de texte après envoi
+        // Vide le champ d'entrée après l'envoi
         messageInput.value = '';
     } else {
-        alert('Veuillez écrire un message avant de l\'envoyer.');
+        alert('Veuillez entrer un message.');
     }
 });
 
-// Ajouter un message au DOM
-function addMessageToDOM(messageText, index) {
+// Écoute en temps réel les nouveaux messages ajoutés à la base de données
+onChildAdded(messagesRef, (snapshot) => {
+    const message = snapshot.val();
+    addMessageToDOM(message.text);
+});
+
+// Fonction pour ajouter un message au DOM
+function addMessageToDOM(messageText) {
     const messagesContainer = document.getElementById('messages-container');
     const newMessage = document.createElement('div');
     newMessage.classList.add('message');
-    newMessage.setAttribute('data-index', index);
-
-    // Ajouter le texte du message avec son numéro
-    newMessage.innerHTML = `
-        <span>Message ${index + 1}: ${messageText}</span>
-        <div class="message-buttons">
-            <button class="modify">Modifier</button>
-            <button class="delete">Supprimer</button>
-        </div>
-    `;
-
-    // Ajouter le nouveau message en haut
-    messagesContainer.insertBefore(newMessage, messagesContainer.firstChild);
-
-    // Ajouter les événements pour modifier et supprimer
-    newMessage.querySelector('.delete').addEventListener('click', function() {
-        deleteMessage(index);
-    });
-
-    newMessage.querySelector('.modify').addEventListener('click', function() {
-        modifyMessage(index);
-    });
+    newMessage.textContent = messageText;
+    messagesContainer.prepend(newMessage);  // Les nouveaux messages s'affichent en haut
 }
-
-// Vérifier si le message contient une insulte
-function containsInsult(message) {
-    const messageLowerCase = message.toLowerCase(); // Convertir en minuscule pour comparaison
-    return motsInterdits.some(insulte => messageLowerCase.includes(insulte));
-}
-
-// Supprimer un message
-function deleteMessage(index) {
-    const storedMessages = JSON.parse(localStorage.getItem('messages')) || [];
-    storedMessages.splice(index, 1);
-    localStorage.setItem('messages', JSON.stringify(storedMessages));
-    refreshMessages(); // Rafraîchir l'affichage
-}
-
-// Modifier un message
-function modifyMessage(index) {
-    const storedMessages = JSON.parse(localStorage.getItem('messages')) || [];
-    const newMessageText = prompt('Modifier votre message:', storedMessages[index]);
-
-    if (newMessageText !== null && newMessageText.trim() !== '') {
-        // Vérifier si le message modifié contient des insultes
-        if (containsInsult(newMessageText)) {
-            alert('Votre message contient des mots interdits. Veuillez corriger votre message.');
-        } else {
-            // Mettre à jour le message dans le tableau
-            storedMessages[index] = newMessageText;
-            localStorage.setItem('messages', JSON.stringify(storedMessages));
-            refreshMessages(); // Rafraîchir l'affichage
-        }
-    }
-}
-
-// Rafraîchir l'affichage des messages
-function refreshMessages() {
-    const messagesContainer = document.getElementById('messages-container');
-    messagesContainer.innerHTML = ''; // Vider le conteneur
-    const storedMessages = JSON.parse(localStorage.getItem('messages')) || [];
-    // Inverser l'ordre des messages pour afficher les plus récents en haut
-    storedMessages.reverse().forEach((message, index) => addMessageToDOM(message, index));
-}
-
-// Ajouter la fonctionnalité de recherche
-document.getElementById('search-button').addEventListener('click', function() {
-    const searchNumber = parseInt(document.getElementById('search-number').value, 10);
-    const storedMessages = JSON.parse(localStorage.getItem('messages')) || [];
-    const messageIndex = searchNumber ? searchNumber - 1 : null; // Convertir en index (0-based)
-
-    // Vider le conteneur et afficher le message recherché
-    const messagesContainer = document.getElementById('messages-container');
-    messagesContainer.innerHTML = ''; // Vider le conteneur
-
-    if (messageIndex >= 0 && messageIndex < storedMessages.length) {
-        addMessageToDOM(storedMessages[messageIndex], messageIndex);
-    } else {
-        alert('Message non trouvé.');
-        // Afficher tous les messages si rien n'est trouvé
-        storedMessages.reverse().forEach((message, index) => addMessageToDOM(message, index));
-    }
-});
